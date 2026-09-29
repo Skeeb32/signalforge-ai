@@ -18,7 +18,7 @@ Native environment: macOS 14.2.1 ARM64, Python 3.12.14. The local machine has no
 
 ## GitHub Actions
 
-The first runs exposed a dependency lock mismatch, a first-push secret-scan history issue and a formatting difference. These were fixed. Full Python training/tests/worker checks, frontend checks, security scanning and image builds are configured. The latest full Compose execution is being verified; its final run URL/status will be added after completion. An unrun or pending check is never counted as passed.
+The first runs exposed a dependency lock mismatch, a first-push secret-scan history issue and a formatting difference. These were fixed. Full Python training/tests/worker checks, frontend checks, security scanning and image builds are configured. The [complete Linux validation run](https://github.com/Skeeb32/signalforge-ai/actions/runs/36560138750) passed all four jobs: Python, frontend, security and containers. The container job built both images, started the full six-service Compose stack, trained/registered the initial model, seeded actual predictions, executed Redis/Celery jobs, verified web/API HTTP responses and shut the stack down cleanly. The [final code revision verification](https://github.com/Skeeb32/signalforge-ai/actions/runs/36560453497) also passed every job, including the 33-test Python suite and the full Docker stack. The tested implementation commit is `de446fb`; [ci-results.json](ci-results.json) records the exact SHA and outcomes. The subsequent documentation-only receipt commit uses `[skip ci]` because it changes no implementation or configuration. An unrun or pending check is never counted as passed.
 
 ## What is not demonstrated
 
