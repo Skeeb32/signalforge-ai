@@ -1,0 +1,42 @@
+{
+  "rows": 3150,
+  "missing": {
+    "call_failures": 0,
+    "complaints": 0,
+    "tenure": 0,
+    "charge_band": 0,
+    "seconds_of_use": 0,
+    "call_count": 0,
+    "sms_count": 0,
+    "distinct_contacts": 0,
+    "tariff_plan": 0,
+    "age": 0,
+    "churn": 0,
+    "customer_value": 0
+  },
+  "sha256": "90d5fb6bd1630cd4de4b4d28fcf8b4cb92a8f6ab7484605b0799d47386f7dbe1",
+  "source": "https://archive.ics.uci.edu/static/public/563/iranian+churn+dataset.zip",
+  "license": "CC BY 4.0",
+  "seed": 42,
+  "churn_rate": 0.15714285714285714,
+  "raw_features": 13,
+  "duplicate_predictor_profiles": 324,
+  "splits": {
+    "train": {
+      "rows": 1898,
+      "churn_rate": 0.15858798735511065
+    },
+    "calibration": {
+      "rows": 626,
+      "churn_rate": 0.15335463258785942
+    },
+    "validation": {
+      "rows": 313,
+      "churn_rate": 0.15654952076677317
+    },
+    "test": {
+      "rows": 313,
+      "churn_rate": 0.15654952076677317
+    }
+  }
+}

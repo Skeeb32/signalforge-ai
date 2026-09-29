@@ -11,7 +11,7 @@ class Customer(BaseModel):
     call_failures: Nonnegative | None
     complaints: Literal[0, 1] | None
     tenure: Nonnegative | None
-    charge_band: Annotated[float, Field(ge=0, le=9, allow_inf_nan=False)] | None
+    charge_band: Annotated[float, Field(ge=0, le=10, allow_inf_nan=False)] | None
     seconds_of_use: Nonnegative | None
     call_count: Nonnegative | None
     sms_count: Nonnegative | None

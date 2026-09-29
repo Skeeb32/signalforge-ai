@@ -43,8 +43,8 @@ def validate(frame: pd.DataFrame, labeled: bool = True) -> dict:
             raise ValueError(f"{column}: unexpected category")
     if labeled and frame[["churn", "customer_value"]].isna().any().any():
         raise ValueError("Targets must not be missing")
-    if not frame.charge_band.dropna().between(0, 9).all():
-        raise ValueError("charge_band must be in 0..9")
+    if not frame.charge_band.dropna().between(0, 10).all():
+        raise ValueError("charge_band must be in 0..10")
     if not frame.age.dropna().between(0, 120).all():
         raise ValueError("age must be in 0..120")
     return {"rows": len(frame), "missing": frame[required].isna().sum().to_dict()}

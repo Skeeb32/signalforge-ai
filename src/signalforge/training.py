@@ -40,9 +40,9 @@ def families():
     }
 
 
-def train(output: Path = Path("models/candidate"), register: bool = True) -> dict:
+def train(output: Path = Path("models/candidate"), register: bool = True, data_path: Path = Path("data/raw/churn.csv")) -> dict:
     output.mkdir(parents=True, exist_ok=True)
-    parts, dataset = prepare()
+    parts, dataset = prepare(data_path)
     tr, cal, val, test = [parts[k] for k in ["train", "calibration", "validation", "test"]]
     groups = pd.util.hash_pandas_object(tr[INPUTS], index=False)
     cv = StratifiedGroupKFold(n_splits=3, shuffle=True, random_state=SEED)
@@ -71,7 +71,7 @@ def train(output: Path = Path("models/candidate"), register: bool = True) -> dic
                                "feature_version": FEATURE_VERSION, "seed": SEED})
             mlflow.log_metrics({k: v for k, v in result["validation"].items() if isinstance(v, float)})
             mlflow.log_metric("training_seconds", result["training_seconds"])
-            mlflow.sklearn.log_model(model, name="model", input_example=val[INPUTS].head(2))
+            mlflow.sklearn.log_model(model, name="model", input_example=val[INPUTS].head(2), serialization_format="cloudpickle")
             fitted[name] = model
             comparisons[name] = result
     # Freeze choice BEFORE looking at any test metric.
