@@ -36,6 +36,8 @@ services:
       REDIS_URL: redis://redis:6379/0
       MLFLOW_TRACKING_URI: http://mlflow:5001
       RATE_LIMIT_REDIS: "1"
+      RETRAIN_DATA_PATH: ${RETRAIN_DATA_PATH:-}
+      RETRAIN_EVALUATION_PATH: ${RETRAIN_EVALUATION_PATH:-}
       API_KEY: ${API_KEY:-}
       CORS_ORIGINS: http://localhost:8080
     ports: ["127.0.0.1:8000:8000"]
@@ -53,6 +55,17 @@ services:
     image: signalforge-runtime:local
     command: ["celery", "-A", "signalforge.tasks", "worker", "--loglevel=INFO", "--concurrency=1"]
     environment: *runtime
+    volumes: *runtime-volumes
+    depends_on:
+      api: {condition: service_healthy}
+  scheduler:
+    image: signalforge-runtime:local
+    profiles: ["automation"]
+    command: ["celery", "-A", "signalforge.tasks", "beat", "--loglevel=INFO", "--schedule=/tmp/celerybeat-schedule"]
+    environment:
+      <<: *runtime
+      RETRAIN_DATA_PATH: ${RETRAIN_DATA_PATH:-}
+      RETRAIN_EVALUATION_PATH: ${RETRAIN_EVALUATION_PATH:-}
     volumes: *runtime-volumes
     depends_on:
       api: {condition: service_healthy}

@@ -41,3 +41,7 @@ python scripts/check_queue.py
 The simulation deliberately reduces call volume/duration and sets complaints to one. It is clearly labeled simulation; it is not claimed as observed production drift. Prediction volume is an event count, not unique customers, and value exposure summed over repeated events is not unique-account revenue risk. Prometheus exposes HTTP request count and latency; persist snapshots using `/monitoring/run`.
 
 Operational improvements: idempotency keys for at-least-once Celery delivery, distributed promotion locks, a separate label service, production performance alerts with minimum sample sizes, tenant isolation, retention/deletion policy and model/data lineage signed manifests.
+
+## Optional scheduler
+
+`docker compose --profile automation up --build` starts Celery Beat with an hourly review. The task persists monitoring and queues retraining only when drift is significant and both `RETRAIN_DATA_PATH` and `RETRAIN_EVALUATION_PATH` are operator-configured paths on the shared data volume. Run one scheduler and one training worker; distributed training/promotion locks are future work. The worker environment must see the same files. Repeated windows still must pass the independent-label gate; the absence of new labeled data is an intentional stop condition.

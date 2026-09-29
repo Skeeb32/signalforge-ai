@@ -70,7 +70,7 @@ export function Monitoring({
             Save snapshot <Download size={14} />
           </button>
         </div>
-        <table>
+        <div className="table-scroll"><table>
           <thead>
             <tr>
               <th>FEATURE</th>
@@ -95,7 +95,7 @@ export function Monitoring({
               </tr>
             ))}
           </tbody>
-        </table>
+        </table></div>
         {monitor.rows === 0 && (
           <div className="empty">Score customers to begin monitoring.</div>
         )}

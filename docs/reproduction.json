@@ -1,0 +1,9 @@
+{
+  "source_commit": "c8f4d43",
+  "dataset_hash_matches": true,
+  "selected_model_matches": true,
+  "max_metric_absolute_difference": 0.0,
+  "tests_passed": 32,
+  "combined_training_and_test_coverage_percent": 85,
+  "note": "Fresh clone, fresh venv, full download/train/register/promote/migrate/predict/test; timing differs under coverage instrumentation"
+}

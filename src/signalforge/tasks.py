@@ -38,3 +38,22 @@ def retrain_job(training_path: str, evaluation_path: str) -> dict:
     from signalforge.retraining import retrain
 
     return retrain(Path(training_path), Path(evaluation_path))
+
+
+@celery.task
+def scheduled_review() -> dict:
+    """Hourly monitoring; optional labeled-window retraining configured by an operator."""
+    import os
+
+    report = run_monitoring()
+    training = os.getenv("RETRAIN_DATA_PATH")
+    evaluation = os.getenv("RETRAIN_EVALUATION_PATH")
+    if report.get("significant_drift") and training and evaluation:
+        job = retrain_job.delay(training, evaluation)
+        return {"monitoring": report, "retraining_job_id": job.id}
+    return {"monitoring": report, "retraining": "No configured independent labels or no drift"}
+
+
+celery.conf.beat_schedule = {
+    "hourly-model-review": {"task": "signalforge.tasks.scheduled_review", "schedule": 3600.0}
+}

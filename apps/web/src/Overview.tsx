@@ -168,7 +168,7 @@ export function Overview({
             View all customers <ArrowUpRight size={14} />
           </button>
         </div>
-        <CustomerTable rows={data.recent} inspect={inspect} />
+        <CustomerTable rows={data.recent.slice(0, 6)} inspect={inspect} />
       </section>
     </>
   );
