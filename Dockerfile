@@ -3,7 +3,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PIP_NO_CACHE_DIR=1 MLFLOW_DISAB
 RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 curl && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY requirements-lock.txt pyproject.toml ./
-RUN pip install -r requirements-lock.txt
+RUN pip install torch==2.14.0 --index-url https://download.pytorch.org/whl/cpu && pip install -r requirements-lock.txt
 COPY src ./src
 RUN pip install --no-deps . && useradd --uid 10001 --create-home signalforge
 COPY . .

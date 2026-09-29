@@ -70,32 +70,34 @@ export function Monitoring({
             Save snapshot <Download size={14} />
           </button>
         </div>
-        <div className="table-scroll"><table>
-          <thead>
-            <tr>
-              <th>FEATURE</th>
-              <th>PSI</th>
-              <th>MISSING</th>
-              <th>OUTSIDE TRAIN RANGE</th>
-              <th>STATUS</th>
-            </tr>
-          </thead>
-          <tbody>
-            {Object.entries(monitor.features).map(([name, f]) => (
-              <tr key={name}>
-                <td>{name.replaceAll("_", " ")}</td>
-                <td>{f.psi.toFixed(3)}</td>
-                <td>{percent(f.missing_rate)}</td>
-                <td>{percent(f.out_of_range_rate)}</td>
-                <td>
-                  <span className={"badge " + (f.drift ? "high" : "low")}>
-                    {f.drift ? "INVESTIGATE" : "STABLE"}
-                  </span>
-                </td>
+        <div className="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>FEATURE</th>
+                <th>PSI</th>
+                <th>MISSING</th>
+                <th>OUTSIDE TRAIN RANGE</th>
+                <th>STATUS</th>
               </tr>
-            ))}
-          </tbody>
-        </table></div>
+            </thead>
+            <tbody>
+              {Object.entries(monitor.features).map(([name, f]) => (
+                <tr key={name}>
+                  <td>{name.replaceAll("_", " ")}</td>
+                  <td>{f.psi.toFixed(3)}</td>
+                  <td>{percent(f.missing_rate)}</td>
+                  <td>{percent(f.out_of_range_rate)}</td>
+                  <td>
+                    <span className={"badge " + (f.drift ? "high" : "low")}>
+                      {f.drift ? "INVESTIGATE" : "STABLE"}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
         {monitor.rows === 0 && (
           <div className="empty">Score customers to begin monitoring.</div>
         )}
