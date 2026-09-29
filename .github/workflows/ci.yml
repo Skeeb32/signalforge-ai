@@ -1,0 +1,91 @@
+name: Quality and reproducibility
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env: {POSTGRES_USER: signalforge, POSTGRES_PASSWORD: test-only, POSTGRES_DB: signalforge}
+        ports: ["5432:5432"]
+        options: --health-cmd="pg_isready -U signalforge" --health-interval=5s --health-retries=15
+      redis:
+        image: redis:7.4-alpine
+        ports: ["6379:6379"]
+        options: --health-cmd="redis-cli ping" --health-interval=5s --health-retries=15
+    env:
+      MLFLOW_DISABLE_AGENT_HINT: "1"
+      DATABASE_URL: postgresql+psycopg://signalforge:test-only@localhost:5432/signalforge
+      TEST_DATABASE_URL: postgresql+psycopg://signalforge:test-only@localhost:5432/signalforge
+      REDIS_URL: redis://localhost:6379/0
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12", cache: pip}
+      - run: pip install -r requirements-lock.txt && pip install --no-deps -e .
+      - run: ruff check . && ruff format --check .
+      - run: python -m signalforge validate-data
+      - run: coverage run --source=signalforge -m signalforge train
+      - run: python -m signalforge promote && alembic upgrade head
+      - run: pytest --cov=signalforge --cov-append --cov-report=xml --junitxml=test-results.xml
+      - run: python scripts/simulate_drift.py
+      - name: Real worker integration
+        run: |
+          celery -A signalforge.tasks worker --pool=solo --loglevel=INFO > worker.log 2>&1 &
+          python scripts/check_queue.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: evaluation-and-tests
+          path: |
+            docs/results.json
+            docs/drift-results.json
+            docs/queue-results.json
+            test-results.xml
+            coverage.xml
+            worker.log
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: "22", cache: npm, cache-dependency-path: apps/web/package-lock.json}
+      - run: npm ci
+      - run: npm run lint && npm run build && npm test
+      - run: npm audit --audit-level=moderate
+  containers:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - run: docker compose config --quiet
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          tags: signalforge-runtime:local
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/web/Dockerfile
+          push: false
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - run: pip install pip-audit
+      - run: pip-audit -r requirements-lock.txt --progress-spinner off
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

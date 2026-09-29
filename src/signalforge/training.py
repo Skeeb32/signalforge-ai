@@ -168,4 +168,7 @@ def train(
     Path("docs/results.json").write_text(json.dumps(metadata, indent=2))
     plots(test.churn, predictions, selected, threshold, Path("docs/assets"))
     print(json.dumps({"selected": selected, "test": comparisons[selected]["test"]}, indent=2))
+    with mlflow.start_run(run_id=comparisons[selected]["run_id"]):
+        mlflow.log_dict(metadata, "evaluation/metadata.json")
+        mlflow.log_artifacts("docs/assets", artifact_path="evaluation/figures")
     return metadata

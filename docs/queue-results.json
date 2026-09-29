@@ -1,0 +1,13 @@
+{
+  "batch_job_id": "0ba03bd6-ae59-40d8-a7c0-19538e2d2f67",
+  "state": "SUCCESS",
+  "predictions": 3,
+  "persisted_ids": [
+    349,
+    350,
+    351
+  ],
+  "monitoring_status": "HEALTHY",
+  "redis": "7.0.11 portable local test server",
+  "worker": "Celery solo, concurrency 1"
+}
