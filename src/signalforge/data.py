@@ -14,6 +14,22 @@ from sklearn.model_selection import StratifiedGroupKFold
 from signalforge.config import SEED
 
 URL = "https://archive.ics.uci.edu/static/public/563/iranian+churn+dataset.zip"
+RAW_COLUMNS = [
+    "Call  Failure",
+    "Complains",
+    "Subscription  Length",
+    "Charge  Amount",
+    "Seconds of Use",
+    "Frequency of use",
+    "Frequency of SMS",
+    "Distinct Called Numbers",
+    "Age Group",
+    "Tariff Plan",
+    "Status",
+    "Age",
+    "Customer Value",
+    "Churn",
+]
 NAMES = [
     "call_failures",
     "complaints",
@@ -67,7 +83,7 @@ def validate(frame: pd.DataFrame, labeled: bool = True) -> dict:
 def load(path: Path = Path("data/raw/churn.csv")) -> pd.DataFrame:
     frame = pd.read_csv(path)
     if "churn" not in frame.columns:
-        if len(frame.columns) != len(NAMES):
+        if list(frame.columns) != RAW_COLUMNS:
             raise ValueError("Unexpected raw schema")
         frame.columns = NAMES
     validate(frame)

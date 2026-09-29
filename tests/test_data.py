@@ -79,3 +79,15 @@ def test_split_profiles_disjoint():
     for i, left in enumerate(groups):
         for right in groups[i + 1 :]:
             assert not left & right
+
+
+def test_reordered_raw_schema_is_rejected(tmp_path):
+    from signalforge.data import RAW_COLUMNS
+
+    frame = pd.read_csv("data/sample/customers.csv").drop(columns="customer_id")
+    frame.columns = RAW_COLUMNS
+    frame = frame[RAW_COLUMNS[::-1]]
+    path = tmp_path / "wrong-order.csv"
+    frame.to_csv(path, index=False)
+    with pytest.raises(ValueError, match="Unexpected raw schema"):
+        load(path)

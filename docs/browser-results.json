@@ -1,0 +1,16 @@
+{
+  "browser": "Chromium",
+  "browser_errors": [],
+  "mobile_horizontal_overflow": {
+    "Overview": false,
+    "Customers": false,
+    "Models": false,
+    "Monitoring": false
+  },
+  "checks": [
+    "four live pages",
+    "customer search empty state",
+    "SHAP detail",
+    "four mobile layouts"
+  ]
+}

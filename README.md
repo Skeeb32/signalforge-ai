@@ -90,7 +90,7 @@ The deterministic drift script reduces usage and increases complaints: baseline 
 
 ## Run locally
 
-Prerequisites: **Python 3.12**, **Node 22**, Git. On macOS, XGBoost requires OpenMP (`brew install libomp`). Linux containers install `libgomp1`. The measured build used Python 3.12.14 on macOS-14.2.1-arm64-arm-64bit.
+Prerequisites: **Python 3.12**, **Node 22.13+**, Git. On macOS, XGBoost requires OpenMP (`brew install libomp`). Linux containers install `libgomp1`. The measured build used Python 3.12.14 on macOS-14.2.1-arm64-arm-64bit.
 
 ```sh
 git clone https://github.com/Skeeb32/signalforge-ai.git
@@ -145,7 +145,7 @@ docker compose exec api python scripts/seed_demo.py
 
 Open **http://localhost:8080**. Compose launches web, API, PostgreSQL, Redis, MLflow and worker. The API migrates and trains on the first start only; allow dependency image build and initial training time. Named volumes retain datasets, model bundles, reports, database and tracking artifacts. Ports bind to loopback. Use `.env` values for Compose; bare CLI environment exports are separate.
 
-API/web/worker Dockerfiles and Compose definitions are included. **Docker was not available on the development Mac; local full-stack execution used native PostgreSQL and Redis.** The CI container job builds images separately. See [validation status](docs/VALIDATION.md) for verified checks and any external blocks; do not infer that an unrun deployment has passed.
+API/web/worker Dockerfiles and Compose definitions are included. **Docker was not available on the development Mac; local full-stack execution used native PostgreSQL and Redis.** The CI container job builds the images and exercises the full Compose startup, scoring and worker path. See [validation status](docs/VALIDATION.md) for verified checks and any external blocks; do not infer that an unrun deployment has passed.
 
 ## Tests, checks and benchmarks
 

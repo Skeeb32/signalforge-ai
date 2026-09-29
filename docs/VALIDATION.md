@@ -1,14 +1,25 @@
 # Validation evidence
 
-Native development environment: macOS ARM64, Python 3.12.14, local PostgreSQL 17 and loopback Redis 7.0.11 with a real Celery worker. Compose specifies PostgreSQL 17 and Redis 7.4. Model and benchmark results are saved as JSON; screenshots come from the running API-backed application.
+## Verified local execution
 
-- Four-family full training, calibration, final evaluation and MLflow registration completed.
-- Initial model promotion completed; guardrail tests reject later unsafe promotions.
-- Actual API requests stored predictions in PostgreSQL; CSV scoring and explanations work.
-- Python suite, separate PostgreSQL API integration, frontend tests/build/lint and Terraform validation are recorded during final verification below.
-- Real Celery batch/monitoring tasks returned SUCCESS; docs/queue-results.json records evidence.
-- Deterministic drift simulation produced HEALTHY baseline and ALERT shifted data.
-- Real Chromium desktop/detail/model/monitoring/mobile captures completed without browser errors.
-- No AWS infrastructure was applied. Docker is unavailable on this Mac; container validation is delegated to CI and must be distinguished from native execution.
+- **33 Python tests passed** in the final local suite. Unit/integration pytest coverage is **66%** across all modules; this excludes separately executed training and worker processes.
+- A **fresh clone and fresh virtual environment** downloaded data, trained all four families, registered and promoted the model, migrated a new database, scored a CSV and passed the then-current 32-test suite. Combined training-plus-test coverage was **85%**. Dataset hash, chosen model and every compared test metric matched exactly (maximum absolute difference **0.0**). See [reproduction.json](reproduction.json).
+- **Six API integration tests passed against actual PostgreSQL 17**, separately from SQLite-based tests.
+- Real Redis **7.0.11** and Celery batch/monitoring jobs completed with persisted prediction IDs. Compose uses Redis 7.4; [queue evidence](queue-results.json) records the native run.
+- **Three frontend tests passed**; TypeScript production build, ESLint, Prettier and Ruff passed.
+- Chromium exercised four live views, customer search and a real SHAP explanation. There were **zero browser errors** and **zero horizontal-overflow failures** across four 390px mobile layouts. [Browser evidence](browser-results.json).
+- Both analysis notebooks were executed against real dataset/model outputs.
+- Drift simulation: unchanged reference window **HEALTHY**, intentionally shifted window **ALERT**.
+- Terraform **1.13.5** initialized with AWS provider **5.100.0** and validated successfully. **No AWS resources were applied.**
+- Python and frontend dependency audits found **zero known vulnerabilities** after fixes. Gitleaks scanned the initial complete seven-commit history with **zero leaks**; subsequent GitHub security jobs also passed.
+- All relative Markdown links resolved. Screenshots and GIF are actual browser captures, not generated mockups.
 
-Final clean-checkout and GitHub Actions status will be recorded after the final verification run. No unrun check is considered passed.
+Native environment: macOS 14.2.1 ARM64, Python 3.12.14. The local machine has no Docker runtime; native PostgreSQL and Redis were used for local full-stack execution. GitHub's Linux jobs independently build the containers and now exercise the entire Compose stack.
+
+## GitHub Actions
+
+The first runs exposed a dependency lock mismatch, a first-push secret-scan history issue and a formatting difference. These were fixed. Full Python training/tests/worker checks, frontend checks, security scanning and image builds are configured. The latest full Compose execution is being verified; its final run URL/status will be added after completion. An unrun or pending check is never counted as passed.
+
+## What is not demonstrated
+
+No AWS deployment, production customer traffic, real future-revenue forecast, business savings, independently labeled production retraining promotion, saturation load test or enterprise security certification is claimed. The static dataset supplies no genuinely new production label window. Candidate promotion safety is covered by tests and explicit refusal paths.
