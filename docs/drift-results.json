@@ -1,0 +1,203 @@
+{
+  "label": "INTENTIONAL SIMULATION",
+  "baseline": {
+    "status": "HEALTHY",
+    "rows": 313,
+    "significant_drift": false,
+    "quality_alert": false,
+    "missing_columns": [],
+    "features": {
+      "call_failures": {
+        "psi": 0.027575655703822317,
+        "missing_rate": 0.0,
+        "out_of_range_rate": 0.0,
+        "unexpected_categories": [],
+        "ks_statistic": 0.04316297296296423,
+        "ks_pvalue": 0.6798796977991851,
+        "drift": false
+      },
+      "complaints": {
+        "psi": 0.0024099076466112313,
+        "missing_rate": 0.0,
+        "out_of_range_rate": 0.0,
+        "unexpected_categories": [],
+        "ks_statistic": 0.002386908028292778,
+        "ks_pvalue": 1.0,
+        "drift": false
+      },
+      "tenure": {
+        "psi": 0.025011592342551254,
+        "missing_rate": 0.0,
+        "out_of_range_rate": 0.0,
+        "unexpected_categories": [],
+        "ks_statistic": 0.05262475718513182,
+        "ks_pvalue": 0.42974370210337964,
+        "drift": false
+      },
+      "charge_band": {
+        "psi": 0.004768615320800059,
+        "missing_rate": 0.0,
+        "out_of_range_rate": 0.0,
+        "unexpected_categories": [],
+        "ks_statistic": 0.027181798900473675,
+        "ks_pvalue": 0.9852285239207054,
+        "drift": false
+      },
+      "seconds_of_use": {
+        "psi": 0.0464640047457992,
+        "missing_rate": 0.0,
+        "out_of_range_rate": 0.0,
+        "unexpected_categories": [],
+        "ks_statistic": 0.04006234913495624,
+        "ks_pvalue": 0.7638110888467181,
+        "drift": false
+      },
+      "call_count": {
+        "psi": 0.018201567303527507,
+        "missing_rate": 0.0,
+        "out_of_range_rate": 0.0,
+        "unexpected_categories": [],
+        "ks_statistic": 0.03539626376512017,
+        "ks_pvalue": 0.8755347852484755,
+        "drift": false
+      },
+      "sms_count": {
+        "psi": 0.02970255942744457,
+        "missing_rate": 0.0,
+        "out_of_range_rate": 0.0,
+        "unexpected_categories": [],
+        "ks_statistic": 0.06809421048556241,
+        "ks_pvalue": 0.15714301379207105,
+        "drift": false
+      },
+      "distinct_contacts": {
+        "psi": 0.018626669888362306,
+        "missing_rate": 0.0,
+        "out_of_range_rate": 0.0,
+        "unexpected_categories": [],
+        "ks_statistic": 0.042386975359971935,
+        "ks_pvalue": 0.7012324283094776,
+        "drift": false
+      },
+      "tariff_plan": {
+        "psi": 0.006128251135865112,
+        "missing_rate": 0.0,
+        "out_of_range_rate": 0.0,
+        "unexpected_categories": [],
+        "ks_statistic": 0.01674707191360003,
+        "ks_pvalue": 0.999997710179343,
+        "drift": false
+      },
+      "age": {
+        "psi": 0.02320875402417257,
+        "missing_rate": 0.0,
+        "out_of_range_rate": 0.0,
+        "unexpected_categories": [],
+        "ks_statistic": 0.07059726566050689,
+        "ks_pvalue": 0.1301316394452997,
+        "drift": false
+      }
+    },
+    "policy": "PSI > 0.2 is a heuristic alert; KS descriptive only; minimum retraining window 100 labeled records"
+  },
+  "shifted": {
+    "status": "ALERT",
+    "rows": 313,
+    "significant_drift": true,
+    "quality_alert": false,
+    "missing_columns": [],
+    "features": {
+      "call_failures": {
+        "psi": 0.027575655703822317,
+        "missing_rate": 0.0,
+        "out_of_range_rate": 0.0,
+        "unexpected_categories": [],
+        "ks_statistic": 0.04316297296296423,
+        "ks_pvalue": 0.6798796977991851,
+        "drift": false
+      },
+      "complaints": {
+        "psi": 8.240109503352084,
+        "missing_rate": 0.0,
+        "out_of_range_rate": 0.0,
+        "unexpected_categories": [],
+        "ks_statistic": 0.9241306638566912,
+        "ks_pvalue": 6.399191647403932e-268,
+        "drift": true
+      },
+      "tenure": {
+        "psi": 0.025011592342551254,
+        "missing_rate": 0.0,
+        "out_of_range_rate": 0.0,
+        "unexpected_categories": [],
+        "ks_statistic": 0.05262475718513182,
+        "ks_pvalue": 0.42974370210337964,
+        "drift": false
+      },
+      "charge_band": {
+        "psi": 0.004768615320800059,
+        "missing_rate": 0.0,
+        "out_of_range_rate": 0.0,
+        "unexpected_categories": [],
+        "ks_statistic": 0.027181798900473675,
+        "ks_pvalue": 0.9852285239207054,
+        "drift": false
+      },
+      "seconds_of_use": {
+        "psi": 4.069466441010188,
+        "missing_rate": 0.0,
+        "out_of_range_rate": 0.0,
+        "unexpected_categories": [],
+        "ks_statistic": 0.7370125607247582,
+        "ks_pvalue": 3.9982078578751656e-146,
+        "drift": true
+      },
+      "call_count": {
+        "psi": 3.097036215815499,
+        "missing_rate": 0.0,
+        "out_of_range_rate": 0.0,
+        "unexpected_categories": [],
+        "ks_statistic": 0.6546743335005403,
+        "ks_pvalue": 2.873741647221255e-111,
+        "drift": true
+      },
+      "sms_count": {
+        "psi": 0.02970255942744457,
+        "missing_rate": 0.0,
+        "out_of_range_rate": 0.0,
+        "unexpected_categories": [],
+        "ks_statistic": 0.06809421048556241,
+        "ks_pvalue": 0.15714301379207105,
+        "drift": false
+      },
+      "distinct_contacts": {
+        "psi": 0.018626669888362306,
+        "missing_rate": 0.0,
+        "out_of_range_rate": 0.0,
+        "unexpected_categories": [],
+        "ks_statistic": 0.042386975359971935,
+        "ks_pvalue": 0.7012324283094776,
+        "drift": false
+      },
+      "tariff_plan": {
+        "psi": 0.006128251135865112,
+        "missing_rate": 0.0,
+        "out_of_range_rate": 0.0,
+        "unexpected_categories": [],
+        "ks_statistic": 0.01674707191360003,
+        "ks_pvalue": 0.999997710179343,
+        "drift": false
+      },
+      "age": {
+        "psi": 0.02320875402417257,
+        "missing_rate": 0.0,
+        "out_of_range_rate": 0.0,
+        "unexpected_categories": [],
+        "ks_statistic": 0.07059726566050689,
+        "ks_pvalue": 0.1301316394452997,
+        "drift": false
+      }
+    },
+    "policy": "PSI > 0.2 is a heuristic alert; KS descriptive only; minimum retraining window 100 labeled records"
+  }
+}

@@ -1,4 +1,5 @@
 """Licensed dataset ingestion, validation and leakage-aware splits."""
+
 import hashlib
 import io
 import json
@@ -13,9 +14,22 @@ from sklearn.model_selection import StratifiedGroupKFold
 from signalforge.config import SEED
 
 URL = "https://archive.ics.uci.edu/static/public/563/iranian+churn+dataset.zip"
-NAMES = ["call_failures", "complaints", "tenure", "charge_band", "seconds_of_use",
-         "call_count", "sms_count", "distinct_contacts", "age_group", "tariff_plan",
-         "status", "age", "customer_value", "churn"]
+NAMES = [
+    "call_failures",
+    "complaints",
+    "tenure",
+    "charge_band",
+    "seconds_of_use",
+    "call_count",
+    "sms_count",
+    "distinct_contacts",
+    "age_group",
+    "tariff_plan",
+    "status",
+    "age",
+    "customer_value",
+    "churn",
+]
 INPUTS = NAMES[:8] + ["tariff_plan", "age"]
 CATEGORIES = {"complaints": [0, 1], "tariff_plan": [1, 2]}
 
@@ -69,19 +83,30 @@ def prepare(path: Path = Path("data/raw/churn.csv")) -> tuple[dict, dict]:
     fold = np.zeros(len(frame), dtype=int)
     for i, (_, indices) in enumerate(splitter.split(frame, frame.churn, groups)):
         fold[indices] = i
-    masks = {"train": fold < 6, "calibration": (fold >= 6) & (fold < 8),
-             "validation": fold == 8, "test": fold == 9}
+    masks = {
+        "train": fold < 6,
+        "calibration": (fold >= 6) & (fold < 8),
+        "validation": fold == 8,
+        "test": fold == 9,
+    }
     parts = {name: frame.loc[mask].copy() for name, mask in masks.items()}
     for name, part in parts.items():
         Path("data/processed").mkdir(parents=True, exist_ok=True)
         part.to_csv(f"data/processed/{name}.csv", index=False)
     Path("data/sample").mkdir(parents=True, exist_ok=True)
     frame.head(25).to_csv("data/sample/customers.csv", index=False)
-    report = {**validate(frame), "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
-              "source": URL, "license": "CC BY 4.0", "seed": SEED,
-              "churn_rate": float(frame.churn.mean()), "raw_features": 13,
-              "duplicate_predictor_profiles": int(groups.duplicated().sum()),
-              "splits": {k: {"rows": len(v), "churn_rate": float(v.churn.mean())}
-                         for k, v in parts.items()}}
+    report = {
+        **validate(frame),
+        "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+        "source": URL,
+        "license": "CC BY 4.0",
+        "seed": SEED,
+        "churn_rate": float(frame.churn.mean()),
+        "raw_features": 13,
+        "duplicate_predictor_profiles": int(groups.duplicated().sum()),
+        "splits": {
+            k: {"rows": len(v), "churn_rate": float(v.churn.mean())} for k, v in parts.items()
+        },
+    }
     Path("docs/data-report.json").write_text(json.dumps(report, indent=2))
     return parts, report

@@ -1,4 +1,5 @@
 """Drift-triggered candidate training with disjoint, labeled promotion evaluation."""
+
 from pathlib import Path
 
 import pandas as pd
@@ -21,7 +22,10 @@ def retrain(training_path: Path, evaluation_path: Path) -> dict:
     eval_hash = set(pd.util.hash_pandas_object(evaluation[INPUTS], index=False))
     old_hash = set(pd.util.hash_pandas_object(current.reference[INPUTS], index=False))
     if train_hash & eval_hash or old_hash & eval_hash:
-        return {"promoted": False, "reason": "Evaluation profiles overlap candidate or champion training"}
+        return {
+            "promoted": False,
+            "reason": "Evaluation profiles overlap candidate or champion training",
+        }
     report = monitor(current.reference, training)
     if not report["significant_drift"]:
         return {"promoted": False, "reason": "No significant drift", "monitoring": report}

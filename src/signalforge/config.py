@@ -1,4 +1,5 @@
 """Environment-based configuration. All paths resolve from the repository working directory."""
+
 import os
 from pathlib import Path
 

@@ -1,0 +1,13 @@
+.git
+.venv
+**/node_modules
+**/dist
+**/__pycache__
+*.db
+*.db-*
+mlruns
+mlartifacts
+models
+.env
+.pytest_cache
+.coverage

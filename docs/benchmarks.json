@@ -1,0 +1,17 @@
+{
+  "platform": "macOS-14.2.1-arm64-arm-64bit",
+  "python": "3.12.14",
+  "cpu": "arm64",
+  "single_inference_runs": 50,
+  "single_inference_p50_ms": 22.049104001780506,
+  "single_inference_p95_ms": 22.614768458151957,
+  "batch_rows": 313,
+  "batch_seconds": 0.03932495799381286,
+  "batch_rows_per_second": 7959.321915849101,
+  "http_requests": 30,
+  "http_p50_ms": 29.42739550053375,
+  "http_p95_ms": 47.979733296960994,
+  "client_process_rss_mb": 276.28125,
+  "training_seconds": 28.677013958003954,
+  "scope": "warm local sequential requests, PostgreSQL persistence, no concurrency; RSS is benchmark client plus loaded models"
+}

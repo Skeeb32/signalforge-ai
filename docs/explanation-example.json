@@ -1,0 +1,77 @@
+{
+  "customer_id": "UCI-00471",
+  "prediction": {
+    "churn_probability": 0.017407870461207953,
+    "risk_level": "LOW",
+    "value_at_risk_index": 15.313682517374685
+  },
+  "model": {
+    "name": "signalforge-churn",
+    "version": "20260929T031916Z"
+  },
+  "timestamp": "2026-09-29T03:23:36.564052+00:00",
+  "explanation": [
+    {
+      "feature": "seconds_of_use",
+      "value": 7318.0,
+      "contribution": -0.09658151922940895,
+      "impact": "negative"
+    },
+    {
+      "feature": "sms_count",
+      "value": 129.0,
+      "contribution": -0.041462571428081615,
+      "impact": "negative"
+    },
+    {
+      "feature": "complaints",
+      "value": 0.0,
+      "contribution": -0.03518689929168522,
+      "impact": "negative"
+    },
+    {
+      "feature": "call_count",
+      "value": 85.0,
+      "contribution": -0.03036508246903755,
+      "impact": "negative"
+    },
+    {
+      "feature": "charge_band",
+      "value": 3.0,
+      "contribution": -0.011107803757939686,
+      "impact": "negative"
+    },
+    {
+      "feature": "tenure",
+      "value": 37.0,
+      "contribution": -0.008300277491462085,
+      "impact": "negative"
+    },
+    {
+      "feature": "call_failures",
+      "value": 12.0,
+      "contribution": 0.007314033186316371,
+      "impact": "positive"
+    },
+    {
+      "feature": "distinct_contacts",
+      "value": 52.0,
+      "contribution": -0.007083546866698868,
+      "impact": "negative"
+    },
+    {
+      "feature": "age",
+      "value": 25.0,
+      "contribution": -0.0033211338955709564,
+      "impact": "negative"
+    },
+    {
+      "feature": "tariff_plan",
+      "value": 1.0,
+      "contribution": 0.0,
+      "impact": "negative"
+    }
+  ],
+  "base_probability": 0.24350267170477652,
+  "explanation_note": "Approximate permutation SHAP for calibrated probability; associations, not causal effects. Correlated features can share attribution."
+}

@@ -1,4 +1,5 @@
 """Reference-based drift and quality reports, including delayed-label performance."""
+
 import numpy as np
 import pandas as pd
 from scipy.stats import ks_2samp
@@ -37,18 +38,30 @@ def monitor(reference: pd.DataFrame, current: pd.DataFrame) -> dict:
         valid = c.dropna()
         score = psi(r, valid)
         ks = ks_2samp(r, valid) if len(valid) else None
-        features[column] = {"psi": score, "missing_rate": float(c.isna().mean()),
-                            "out_of_range_rate": float(((c < r.min()) | (c > r.max())).mean()),
-                            "unexpected_categories": sorted(set(valid) - set(CATEGORIES[column])) if column in CATEGORIES else [],
-                            "ks_statistic": float(ks.statistic) if ks else None,
-                            "ks_pvalue": float(ks.pvalue) if ks else None,
-                            "drift": bool(score > 0.2)}
+        features[column] = {
+            "psi": score,
+            "missing_rate": float(c.isna().mean()),
+            "out_of_range_rate": float(((c < r.min()) | (c > r.max())).mean()),
+            "unexpected_categories": sorted(set(valid) - set(CATEGORIES[column]))
+            if column in CATEGORIES
+            else [],
+            "ks_statistic": float(ks.statistic) if ks else None,
+            "ks_pvalue": float(ks.pvalue) if ks else None,
+            "drift": bool(score > 0.2),
+        }
     drift = any(f["drift"] for f in features.values())
-    quality = bool(missing_columns) or any(f["missing_rate"] > 0.05 or f["unexpected_categories"] for f in features.values())
-    return {"status": "ALERT" if drift or quality else "HEALTHY", "rows": len(current),
-            "significant_drift": drift, "quality_alert": quality,
-            "missing_columns": missing_columns, "features": features,
-            "policy": "PSI > 0.2 is a heuristic alert; KS descriptive only; minimum retraining window 100 labeled records"}
+    quality = bool(missing_columns) or any(
+        f["missing_rate"] > 0.05 or f["unexpected_categories"] for f in features.values()
+    )
+    return {
+        "status": "ALERT" if drift or quality else "HEALTHY",
+        "rows": len(current),
+        "significant_drift": drift,
+        "quality_alert": quality,
+        "missing_columns": missing_columns,
+        "features": features,
+        "policy": "PSI > 0.2 is a heuristic alert; KS descriptive only; minimum retraining window 100 labeled records",
+    }
 
 
 def labeled_performance(labels, probabilities, threshold: float) -> dict:

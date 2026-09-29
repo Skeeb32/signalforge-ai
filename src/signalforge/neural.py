@@ -1,4 +1,5 @@
 """A CPU PyTorch classifier with the sklearn estimator contract."""
+
 import numpy as np
 import torch
 from sklearn.base import BaseEstimator, ClassifierMixin
@@ -17,8 +18,12 @@ class TorchClassifier(ClassifierMixin, BaseEstimator):
         torch.manual_seed(self.random_state)
         self.classes_ = np.array([0, 1])
         self.n_features_in_ = X.shape[1]
-        self.network_ = nn.Sequential(nn.Linear(X.shape[1], self.hidden), nn.ReLU(),
-                                      nn.Dropout(0.15), nn.Linear(self.hidden, 1))
+        self.network_ = nn.Sequential(
+            nn.Linear(X.shape[1], self.hidden),
+            nn.ReLU(),
+            nn.Dropout(0.15),
+            nn.Linear(self.hidden, 1),
+        )
         inputs = torch.tensor(np.asarray(X), dtype=torch.float32)
         labels = torch.tensor(np.asarray(y), dtype=torch.float32).reshape(-1, 1)
         weight = (len(labels) - labels.sum()) / labels.sum().clamp(min=1)

@@ -1,0 +1,70 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: signalforge
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local-only-change-me}
+      POSTGRES_DB: signalforge
+    volumes: ["postgres-data:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U signalforge"]
+      interval: 5s
+      retries: 20
+  redis:
+    image: redis:7.4-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes: ["redis-data:/data"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      retries: 20
+  mlflow:
+    build: .
+    image: signalforge-runtime:local
+    command: ["mlflow", "server", "--host", "0.0.0.0", "--port", "5001", "--backend-store-uri", "sqlite:////app/mlruns/tracking.db", "--artifacts-destination", "/app/mlruns/artifacts", "--allowed-hosts", "mlflow:5001,localhost:5001,127.0.0.1:5001"]
+    ports: ["127.0.0.1:5001:5001"]
+    volumes: ["tracking:/app/mlruns"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5001/health"]
+      interval: 10s
+      retries: 20
+  api:
+    build: .
+    image: signalforge-runtime:local
+    environment: &runtime
+      DATABASE_URL: postgresql+psycopg://signalforge:${POSTGRES_PASSWORD:-local-only-change-me}@postgres:5432/signalforge
+      REDIS_URL: redis://redis:6379/0
+      MLFLOW_TRACKING_URI: http://mlflow:5001
+      RATE_LIMIT_REDIS: "1"
+      API_KEY: ${API_KEY:-}
+      CORS_ORIGINS: http://localhost:8080
+    ports: ["127.0.0.1:8000:8000"]
+    volumes: &runtime-volumes ["models:/app/models", "datasets:/app/data", "reports:/app/docs"]
+    depends_on:
+      postgres: {condition: service_healthy}
+      redis: {condition: service_healthy}
+      mlflow: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f -H \"X-API-Key: $$API_KEY\" http://localhost:8000/health"]
+      interval: 15s
+      start_period: 300s
+      retries: 20
+  worker:
+    image: signalforge-runtime:local
+    command: ["celery", "-A", "signalforge.tasks", "worker", "--loglevel=INFO", "--concurrency=1"]
+    environment: *runtime
+    volumes: *runtime-volumes
+    depends_on:
+      api: {condition: service_healthy}
+  web:
+    build: {context: ., dockerfile: apps/web/Dockerfile}
+    ports: ["127.0.0.1:8080:8080"]
+    depends_on:
+      api: {condition: service_healthy}
+volumes:
+  postgres-data:
+  redis-data:
+  tracking:
+  models:
+  datasets:
+  reports:

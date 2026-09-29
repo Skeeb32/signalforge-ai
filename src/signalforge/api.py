@@ -1,4 +1,5 @@
 """Validated serving API with durable audit history and bounded batch jobs."""
+
 import io
 import json
 import os
@@ -49,11 +50,17 @@ def authorize(request: Request):
     if os.getenv("RATE_LIMIT_REDIS") == "1":
         from redis import Redis
         from redis.exceptions import RedisError
+
         from signalforge.config import REDIS_URL
+
         try:
             client = Redis.from_url(REDIS_URL, socket_timeout=2)
             bucket = f"rate:{request.client.host}:{int(time.time() // 60)}"
-            count = client.eval("local n=redis.call('INCR',KEYS[1]); if n==1 then redis.call('EXPIRE',KEYS[1],61) end; return n", 1, bucket)
+            count = client.eval(
+                "local n=redis.call('INCR',KEYS[1]); if n==1 then redis.call('EXPIRE',KEYS[1],61) end; return n",
+                1,
+                bucket,
+            )
             if count > 120:
                 raise HTTPException(429, "Rate limit exceeded")
         except RedisError as exc:
@@ -78,10 +85,15 @@ async def lifespan(app):
     yield
 
 
-app = FastAPI(title="SignalForge AI", version="0.1.0", lifespan=lifespan,
-              dependencies=[Depends(authorize)])
-app.add_middleware(CORSMiddleware, allow_origins=os.getenv("CORS_ORIGINS", "http://localhost:5173").split(","),
-                   allow_methods=["GET", "POST"], allow_headers=["Content-Type", "X-API-Key"])
+app = FastAPI(
+    title="SignalForge AI", version="0.1.0", lifespan=lifespan, dependencies=[Depends(authorize)]
+)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=os.getenv("CORS_ORIGINS", "http://localhost:5173").split(","),
+    allow_methods=["GET", "POST"],
+    allow_headers=["Content-Type", "X-API-Key"],
+)
 
 
 @app.middleware("http")
@@ -98,10 +110,14 @@ def persist(frame: pd.DataFrame, predictions: list[dict]) -> list[dict]:
     with Session.begin() as session:
         for record, result in zip(frame.to_dict("records"), predictions, strict=True):
             clean = {k: None if pd.isna(v) else v for k, v in record.items()}
-            row = Prediction(customer_id=result["customer_id"],
-                             probability=result["prediction"]["churn_probability"],
-                             risk=result["prediction"]["risk_level"], model_version=result["model"]["version"],
-                             features=clean, value_at_risk=result["prediction"]["value_at_risk_index"])
+            row = Prediction(
+                customer_id=result["customer_id"],
+                probability=result["prediction"]["churn_probability"],
+                risk=result["prediction"]["risk_level"],
+                model_version=result["model"]["version"],
+                features=clean,
+                value_at_risk=result["prediction"]["value_at_risk_index"],
+            )
             session.add(row)
             session.flush()
             result["prediction_id"] = row.id
@@ -143,12 +159,21 @@ async def predict_csv(file: UploadFile = File(...)):
         frame = pd.read_csv(io.BytesIO(contents))
         if not 1 <= len(frame) <= 500:
             raise ValueError("CSV must contain 1..500 rows")
-        batch = Batch(customers=[Customer.model_validate(row) for row in frame.where(pd.notnull(frame), None).to_dict("records")])
+        batch = Batch(
+            customers=[
+                Customer.model_validate(row)
+                for row in frame.where(pd.notnull(frame), None).to_dict("records")
+            ]
+        )
     except (ValueError, ValidationError) as exc:
         raise HTTPException(422, str(exc)[:800]) from exc
     predictions = predict_batch(batch)["predictions"]
     output = pd.json_normalize(predictions).to_csv(index=False)
-    return Response(output, media_type="text/csv", headers={"Content-Disposition": "attachment; filename=predictions.csv"})
+    return Response(
+        output,
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=predictions.csv"},
+    )
 
 
 @app.post("/explain")
@@ -165,20 +190,43 @@ def customers(q: str = "", risk: str = "", limit: int = 100):
         if risk in ["HIGH", "LOW"]:
             query = query.where(Prediction.risk == risk)
         rows = session.scalars(query.limit(max(1, min(limit, 500)))).all()
-        return [{"id": r.id, "customer_id": r.customer_id, "probability": r.probability,
-                 "risk": r.risk, "value_at_risk": r.value_at_risk, "model_version": r.model_version,
-                 "features": r.features, "timestamp": r.timestamp.isoformat(), "label": r.label} for r in rows]
+        return [
+            {
+                "id": r.id,
+                "customer_id": r.customer_id,
+                "probability": r.probability,
+                "risk": r.risk,
+                "value_at_risk": r.value_at_risk,
+                "model_version": r.model_version,
+                "features": r.features,
+                "timestamp": r.timestamp.isoformat(),
+                "label": r.label,
+            }
+            for r in rows
+        ]
 
 
 @app.get("/dashboard")
 def dashboard():
     rows = customers(limit=500)
     probabilities = [r["probability"] for r in rows]
-    return {"window": "latest 500 predictions", "total_predictions": len(rows),
-            "high_risk": sum(r["risk"] == "HIGH" for r in rows),
-            "average_probability": sum(probabilities) / len(rows) if rows else None,
-            "value_at_risk": sum(r["value_at_risk"] for r in rows), "recent": rows[:12],
-            "distribution": [{"range": f"{i * 10}–{(i + 1) * 10}%", "count": sum(i / 10 <= p < (i + 1) / 10 or (i == 9 and p == 1) for p in probabilities)} for i in range(10)]}
+    return {
+        "window": "latest 500 predictions",
+        "total_predictions": len(rows),
+        "high_risk": sum(r["risk"] == "HIGH" for r in rows),
+        "average_probability": sum(probabilities) / len(rows) if rows else None,
+        "value_at_risk": sum(r["value_at_risk"] for r in rows),
+        "recent": rows[:12],
+        "distribution": [
+            {
+                "range": f"{i * 10}–{(i + 1) * 10}%",
+                "count": sum(
+                    i / 10 <= p < (i + 1) / 10 or (i == 9 and p == 1) for p in probabilities
+                ),
+            }
+            for i in range(10)
+        ],
+    }
 
 
 @app.post("/feedback")
@@ -197,7 +245,11 @@ def monitoring():
     rows = [r for r in customers(limit=500) if r["model_version"] == predictor.metadata["version"]]
     report = monitor(predictor.reference, pd.DataFrame([r["features"] for r in rows]))
     labeled = [r for r in rows if r["label"] is not None]
-    report["performance"] = labeled_performance([r["label"] for r in labeled], [r["probability"] for r in labeled], predictor.metadata["threshold"])
+    report["performance"] = labeled_performance(
+        [r["label"] for r in labeled],
+        [r["probability"] for r in labeled],
+        predictor.metadata["threshold"],
+    )
     return report
 
 
@@ -212,6 +264,7 @@ def save_monitoring():
 @app.post("/jobs/batch", status_code=202)
 def batch_job(batch: Batch):
     from signalforge.tasks import batch_predict
+
     job = batch_predict.delay([c.model_dump() for c in batch.customers])
     return {"job_id": job.id}
 
@@ -219,8 +272,13 @@ def batch_job(batch: Batch):
 @app.get("/jobs/{job_id}")
 def job_status(job_id: str):
     from signalforge.tasks import celery
+
     job = celery.AsyncResult(job_id)
-    return {"job_id": job_id, "state": job.state, "result": job.result if job.successful() else None}
+    return {
+        "job_id": job_id,
+        "state": job.state,
+        "result": job.result if job.successful() else None,
+    }
 
 
 @app.get("/metrics")
